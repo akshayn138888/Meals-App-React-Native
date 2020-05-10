@@ -10,6 +10,12 @@ import Colors from "../constants/Colors";
 import FavouritesScreen from "../screens/FavouritesScreen";
 import { Ionicons } from "@expo/vector-icons";
 import { createMaterialBottomTabNavigator } from "react-navigation-material-bottom-tabs";
+const defaultstackNavoptions = {
+  headerStyle: {
+    backgroundColor: Platform.OS === "android" ? Colors.primaryColor : ""
+  },
+  headerTintColor: Platform.OS === "android" ? "white" : Colors.primaryColor
+};
 const MealsNavigator = createStackNavigator(
   {
     Categories: {
@@ -28,14 +34,19 @@ const MealsNavigator = createStackNavigator(
   // overrides everything if not set here then.
   {
     // initialRouteName: 'Categories' you can just initial route
-    defaultNavigationOptions: {
-      headerStyle: {
-        backgroundColor: Platform.OS === "android" ? Colors.primaryColor : ""
-      },
-      headerTintColor: Platform.OS === "android" ? "white" : Colors.primaryColor
-    }
+    defaultNavigationOptions: defaultstackNavoptions
   }
 );
+const FavNavigator = createStackNavigator(
+  {
+    Favourites: FavouritesScreen,
+    MealDetail: MealDetailScreen
+  },
+  {
+    defaultNavigationOptions: defaultstackNavoptions
+  }
+);
+
 const tabScreenConfig = {
   Meal: {
     screen: MealsNavigator,
@@ -48,7 +59,7 @@ const tabScreenConfig = {
     }
   },
   Favourites: {
-    screen: FavouritesScreen,
+    screen: FavNavigator,
     navigationOptions: {
       tabBarIcon: tabInfo => {
         return <Ionicons name="ios-star" size={25} color={tabInfo.tintColor} />;
