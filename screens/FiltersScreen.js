@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, StyleSheet, Switch, Platform } from "react-native";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
+import { useDispatch } from "react-redux";
 import HeaderButton from "../components/HeaderButton";
 import Colors from "../constants/Colors";
+import { SET_FILTERS, setFilters } from "../store/actions/meals";
+
 const FilterSwitch = props => {
   return (
     <View style={styles.filterContainer}>
       <Text>{props.label}</Text>
       <Switch
-        trackColor={{ true: Colors.accentColor }}
+        trackColor={{ true: Colors.primaryColor }}
         thumbColor={Platform.OS === "android" ? Colors.primaryColor : ""}
         value={props.state}
         onValueChange={props.onChange}
@@ -16,13 +19,15 @@ const FilterSwitch = props => {
     </View>
   );
 };
+
 const FiltersScreen = props => {
   const { navigation } = props;
-  const [isGlutenFree, setGlutenFree] = useState(false);
-  const [isLactoseFree, setisLactoseFree] = useState(false);
-  const [isVegan, setisVegan] = useState(false);
-  const [isVegetarian, setisVegetarian] = useState(false);
 
+  const [isGlutenFree, setIsGlutenFree] = useState(false);
+  const [isLactoseFree, setIsLactoseFree] = useState(false);
+  const [isVegan, setIsVegan] = useState(false);
+  const [isVegetarian, setIsVegetarian] = useState(false);
+  const dispatch = useDispatch();
   const saveFilters = useCallback(() => {
     const appliedFilters = {
       glutenFree: isGlutenFree,
@@ -30,40 +35,44 @@ const FiltersScreen = props => {
       vegan: isVegan,
       isVegetarian: isVegetarian
     };
-  }, [isVegetarian, isVegan, isLactoseFree, isGlutenFree]);
+    dispatch(setFilters(appliedFilters));
+    console.log(appliedFilters);
+  }, [isGlutenFree, isLactoseFree, isVegan, isVegetarian, dispatch]);
+
   useEffect(() => {
-    props.navigation.setParams({ save: saveFilters });
+    navigation.setParams({ save: saveFilters });
   }, [saveFilters]);
+
   return (
     <View style={styles.screen}>
-      <Text style={styles.title}>Togglers</Text>
+      <Text style={styles.title}>Available Filters / Restrictions</Text>
       <FilterSwitch
-        label="Gluten Free"
+        label="Gluten-free"
         state={isGlutenFree}
-        onChange={newValue => setGlutenFree(newValue)}
-      ></FilterSwitch>
+        onChange={newValue => setIsGlutenFree(newValue)}
+      />
       <FilterSwitch
-        label="Lactose Free"
+        label="Lactose-free"
         state={isLactoseFree}
-        onChange={newValue => setisLactoseFree(newValue)}
-      ></FilterSwitch>
+        onChange={newValue => setIsLactoseFree(newValue)}
+      />
       <FilterSwitch
         label="Vegan"
         state={isVegan}
-        onChange={newValue => setisVegan(newValue)}
-      ></FilterSwitch>
+        onChange={newValue => setIsVegan(newValue)}
+      />
       <FilterSwitch
         label="Vegetarian"
         state={isVegetarian}
-        onChange={newValue => setisVegetarian(newValue)}
-      ></FilterSwitch>
+        onChange={newValue => setIsVegetarian(newValue)}
+      />
     </View>
   );
 };
 
 FiltersScreen.navigationOptions = navData => {
   return {
-    headerTitle: "Filters Meals",
+    headerTitle: "Filter Meals",
     headerLeft: (
       <HeaderButtons HeaderButtonComponent={HeaderButton}>
         <Item
@@ -72,7 +81,7 @@ FiltersScreen.navigationOptions = navData => {
           onPress={() => {
             navData.navigation.toggleDrawer();
           }}
-        ></Item>
+        />
       </HeaderButtons>
     ),
     headerRight: (
@@ -80,17 +89,23 @@ FiltersScreen.navigationOptions = navData => {
         <Item
           title="Save"
           iconName="ios-save"
-          onPress={navigation.getParam("save")}
-        ></Item>
+          onPress={navData.navigation.getParam("save")}
+        />
       </HeaderButtons>
     )
   };
 };
+
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-
     alignItems: "center"
+  },
+  title: {
+    fontFamily: "open-sans-bold",
+    fontSize: 22,
+    margin: 20,
+    textAlign: "center"
   },
   filterContainer: {
     flexDirection: "row",
@@ -98,11 +113,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "80%",
     marginVertical: 15
-  },
-  title: {
-    fontFamily: "open-sans-bold",
-    fontSize: 22,
-    textAlign: "center"
   }
 });
+
 export default FiltersScreen;
